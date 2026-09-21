@@ -1,0 +1,37 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# 가상환경
+.venv/
+venv/
+env/
+
+# ---------- PyInstaller (실행 파일 빌드 결과물) ----------
+# .spec 파일은 빌드 설정이므로 추적한다
+build/
+dist/
+
+# ---------- 프로그램 실행 결과물 ----------
+# 뉴스 크롤러가 저장하는 결과 파일
+news_result.*
+
+# ---------- 비밀 정보 ----------
+.env
+.env.*
+*.pem
+*.key
+
+# ---------- 에디터 / OS ----------
+# .vscode/launch.json 은 추적 중이므로 폴더 전체를 무시하지 않는다
+.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
