@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           content: body.content,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-        },
+        } as any,
       ])
       .select()
 

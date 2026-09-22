@@ -52,7 +52,7 @@ export async function PUT(
         category: body.category,
         tags: body.tags,
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq('id', id)
       .select()
 
