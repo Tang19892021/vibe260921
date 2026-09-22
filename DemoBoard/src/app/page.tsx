@@ -45,35 +45,50 @@ export default function Home() {
   return (
     <div className="space-y-12">
       {/* Hero Section */}
-      <section className="py-12 md:py-20">
+      <section className="py-12 md:py-24 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              DemoBoard에 오신 것을 환영합니다
+            <div className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              ✨ 현대적인 게시판 플랫폼
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              DemoBoard에 <br /> 오신 것을 환영합니다
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Next.js, TypeScript, Tailwind CSS, shadcn/ui로 만든 현대적인 게시판입니다.
-              지금 바로 시작해보세요!
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              Next.js 14, TypeScript, Supabase로 만든 완전한 기능의 커뮤니티 게시판입니다.
+              <br />지금 바로 게시물을 작성하고 커뮤니티와 소통하세요!
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/posts">
-                <Button size="lg" className="gap-2">
-                  게시물 보기
+                <Button size="lg" className="gap-2 w-full sm:w-auto">
+                  게시물 둘러보기
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg">
-                글쓰기
-              </Button>
+              <Link href="/posts/new">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  첫 글 작성하기
+                </Button>
+              </Link>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg blur-3xl opacity-20"></div>
-            <div className="relative bg-white rounded-lg p-8 shadow-lg">
-              <div className="space-y-4">
-                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
-                <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+          <div className="relative hidden md:block">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-2xl blur-3xl opacity-30"></div>
+            <div className="relative bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
+              <div className="space-y-4 mb-6">
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-100 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-100 rounded"></div>
+                <div className="h-3 bg-gray-100 rounded w-5/6"></div>
+              </div>
+              <div className="space-y-3 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="h-2 bg-gray-100 rounded flex-1"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="h-2 bg-gray-100 rounded flex-1"></div>
+                </div>
               </div>
             </div>
           </div>

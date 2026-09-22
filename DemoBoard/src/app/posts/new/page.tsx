@@ -73,17 +73,19 @@ export default function NewPostPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-6 flex items-center gap-2">
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-8">
         <Link href="/posts">
-          <Button variant="ghost" size="sm" className="gap-2">
+          <Button variant="ghost" size="sm" className="gap-2 mb-4">
             <ArrowLeft className="w-4 h-4" />
-            돌아가기
+            게시물 목록으로 돌아가기
           </Button>
         </Link>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">새 게시물 작성</h1>
+        <p className="text-gray-600">커뮤니티와 공유할 내용을 작성해주세요</p>
       </div>
 
-      <Card>
+      <Card className="border border-gray-200 shadow-lg">
         <CardHeader>
           <CardTitle>새 게시물 작성</CardTitle>
         </CardHeader>

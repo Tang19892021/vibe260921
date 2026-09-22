@@ -116,11 +116,25 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
     )
   }
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Main Content */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Post Header */}
-        <Card>
+    <div>
+      {/* Breadcrumb */}
+      <div className="mb-8 flex items-center gap-2 text-sm">
+        <Link href="/" className="text-blue-600 hover:text-blue-700">
+          홈
+        </Link>
+        <span className="text-gray-400">/</span>
+        <Link href="/posts" className="text-blue-600 hover:text-blue-700">
+          게시물
+        </Link>
+        <span className="text-gray-400">/</span>
+        <span className="text-gray-600">상세보기</span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Post Header */}
+          <Card>
           <CardHeader className="border-0 pb-6">
             <div className="space-y-4">
               <div className="flex items-start justify-between">
