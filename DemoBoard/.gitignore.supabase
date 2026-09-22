@@ -1,0 +1,6 @@
+# Supabase local development files
+.supabase/
+supabase/.temp/
+
+# Local Supabase database
+supabase/data/

@@ -92,54 +92,59 @@ npm install
 
 ### 2. Supabase 설정
 
+#### 방법 A: Supabase Cloud (권장)
+
 1. [Supabase](https://supabase.com)에서 새 프로젝트 생성
 2. 프로젝트 설정에서 URL과 Anon Key 복사
-3. `.env.local` 파일 생성 (`.env.example` 참고):
+3. `.env.local` 파일 수정:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 3. Supabase 데이터베이스 테이블 생성
+4. Supabase SQL Editor에서 `supabase/migrations/20240922000000_create_posts_and_comments.sql` 내용 실행
+5. (선택) `supabase/seed.sql` 실행하여 샘플 데이터 추가
 
-Supabase SQL Editor에서 다음을 실행:
+#### 방법 B: 로컬 Supabase 개발 환경
 
-```sql
--- Posts 테이블
-CREATE TABLE posts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  author TEXT NOT NULL,
-  category TEXT NOT NULL,
-  tags TEXT[] DEFAULT '{}',
-  views INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+1. Supabase CLI 설치:
+```bash
+npm install -g supabase
+```
 
--- Comments 테이블
-CREATE TABLE comments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  author TEXT NOT NULL,
-  content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+2. 로컬 Supabase 시작:
+```bash
+supabase start
+```
 
--- RLS (Row Level Security) 활성화
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+3. `.env.local` 자동 생성됨 (필요시 수정)
 
--- Public 정책 (모든 사용자가 읽기 가능)
-CREATE POLICY "Enable read access for all users" ON posts FOR SELECT USING (TRUE);
-CREATE POLICY "Enable read access for all users" ON comments FOR SELECT USING (TRUE);
-CREATE POLICY "Enable insert for all users" ON posts FOR INSERT WITH CHECK (TRUE);
-CREATE POLICY "Enable insert for all users" ON comments FOR INSERT WITH CHECK (TRUE);
-CREATE POLICY "Enable update for all users" ON posts FOR UPDATE USING (TRUE);
-CREATE POLICY "Enable delete for all users" ON posts FOR DELETE USING (TRUE);
+4. 마이그레이션 자동 실행 (supabase/migrations/ 의 모든 파일)
+
+### 3. 프로젝트 구조
+
+```
+DemoBoard/
+├── supabase/
+│   ├── migrations/          # 데이터베이스 마이그레이션 파일
+│   │   └── 20240922000000_create_posts_and_comments.sql
+│   └── seed.sql             # 초기 데이터
+├── src/
+│   ├── app/
+│   │   ├── api/            # Next.js API 라우트
+│   │   ├── posts/          # 게시물 관련 페이지
+│   │   └── page.tsx        # 홈페이지
+│   ├── components/         # React 컴포넌트
+│   ├── lib/
+│   │   ├── supabase.ts    # Supabase 클라이언트
+│   │   ├── database.types.ts  # DB 타입
+│   │   └── types.ts       # 비즈니스 로직 타입
+│   └── styles/
+├── .env.local             # 환경 변수 (로컬에만)
+├── .env.example           # 환경 변수 예시
+├── supabase.json          # Supabase 설정
+└── package.json
 ```
 
 ### 4. 개발 서버 실행

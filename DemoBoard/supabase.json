@@ -1,0 +1,14 @@
+{
+  "project_id": "YOUR_PROJECT_ID",
+  "supabase_url": "YOUR_SUPABASE_URL",
+  "supabase_key": "YOUR_SUPABASE_KEY",
+  "local": {
+    "studio_port": 54323,
+    "postgres_port": 54322,
+    "jwt_secret": "your-secret-jwt-token-change-this-in-production",
+    "jwt_exp": 3600,
+    "disable_rest": false,
+    "disable_graphql": false,
+    "seed_seed_js_path": "supabase/seed.js"
+  }
+}
