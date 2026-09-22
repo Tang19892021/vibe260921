@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,44 +9,39 @@ import { Sidebar } from '@/components/Sidebar'
 import type { Post } from '@/lib/types'
 import { ArrowRight, MessageSquare, Users, Zap } from 'lucide-react'
 
-// Mock 데이터
-const mockPosts: Post[] = [
-  {
-    id: '1',
-    title: 'Next.js 14 소개: App Router와 새로운 기능들',
-    content: 'Next.js 14에서는 App Router가 더욱 안정화되었고, 서버 컴포넌트가 기본이 되었습니다. 이 글에서는 주요 변경 사항을 알아봅니다.',
-    author: '김개발',
-    createdAt: new Date('2024-09-20'),
-    updatedAt: new Date('2024-09-20'),
-    views: 123,
-    category: '기술',
-    tags: ['Next.js', 'React', 'Web'],
-  },
-  {
-    id: '2',
-    title: 'TypeScript 5.0의 새로운 기능',
-    content: 'TypeScript 5.0에서는 Decorators, const type parameters 등 새로운 기능이 추가되었습니다.',
-    author: '박개발',
-    createdAt: new Date('2024-09-19'),
-    updatedAt: new Date('2024-09-19'),
-    views: 89,
-    category: '기술',
-    tags: ['TypeScript', 'JavaScript'],
-  },
-  {
-    id: '3',
-    title: 'Tailwind CSS로 빠르게 UI 만들기',
-    content: 'Tailwind CSS는 유틸리티 우선 CSS 프레임워크로, 빠르고 효율적인 디자인을 가능하게 합니다.',
-    author: '이디자인',
-    createdAt: new Date('2024-09-18'),
-    updatedAt: new Date('2024-09-18'),
-    views: 156,
-    category: '기술',
-    tags: ['Tailwind', 'CSS', 'Design'],
-  },
-]
-
 export default function Home() {
+  const [latestPosts, setLatestPosts] = useState<Post[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    fetchLatestPosts()
+  }, [])
+
+  const fetchLatestPosts = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/posts')
+      const data = await response.json()
+
+      const formattedPosts = data.slice(0, 3).map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        author: post.author,
+        createdAt: new Date(post.created_at),
+        updatedAt: new Date(post.updated_at),
+        views: post.views || 0,
+        category: post.category,
+        tags: post.tags || [],
+      }))
+
+      setLatestPosts(formattedPosts)
+    } catch (error) {
+      console.error('Failed to fetch posts:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -149,7 +145,13 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <PostList posts={mockPosts} />
+            {isLoading ? (
+              <div className="flex justify-center items-center py-12">
+                <p className="text-gray-500">로딩 중...</p>
+              </div>
+            ) : (
+              <PostList posts={latestPosts} />
+            )}
           </div>
           <div>
             <Sidebar />

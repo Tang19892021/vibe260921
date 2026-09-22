@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -12,11 +13,14 @@ import { ArrowLeft, Plus, X } from 'lucide-react'
 const categories = ['기술', '일상', '뉴스', '질문', '공지']
 
 export default function NewPostPage() {
+  const router = useRouter()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [category, setCategory] = useState('기술')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -27,6 +31,45 @@ export default function NewPostPage() {
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!title.trim() || !content.trim()) {
+      setError('제목과 내용은 필수입니다.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          category,
+          tags,
+          author: '사용자', // 향후 인증 시스템 추가 시 실제 사용자로 변경
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('게시물 작성에 실패했습니다.')
+      }
+
+      const data = await response.json()
+      router.push(`/posts/${data.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -45,7 +88,12 @@ export default function NewPostPage() {
           <CardTitle>새 게시물 작성</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 제목
@@ -148,8 +196,8 @@ export default function NewPostPage() {
             )}
 
             <div className="flex gap-3 pt-4 border-t border-gray-200">
-              <Button type="submit" className="flex-1">
-                게시물 작성
+              <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                {isSubmitting ? '작성 중...' : '게시물 작성'}
               </Button>
               <Link href="/posts" className="flex-1">
                 <Button type="button" variant="outline" className="w-full">

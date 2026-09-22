@@ -90,7 +90,59 @@ DemoBoard/
 npm install
 ```
 
-### 2. 개발 서버 실행
+### 2. Supabase 설정
+
+1. [Supabase](https://supabase.com)에서 새 프로젝트 생성
+2. 프로젝트 설정에서 URL과 Anon Key 복사
+3. `.env.local` 파일 생성 (`.env.example` 참고):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 3. Supabase 데이터베이스 테이블 생성
+
+Supabase SQL Editor에서 다음을 실행:
+
+```sql
+-- Posts 테이블
+CREATE TABLE posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  author TEXT NOT NULL,
+  category TEXT NOT NULL,
+  tags TEXT[] DEFAULT '{}',
+  views INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Comments 테이블
+CREATE TABLE comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  author TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- RLS (Row Level Security) 활성화
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+-- Public 정책 (모든 사용자가 읽기 가능)
+CREATE POLICY "Enable read access for all users" ON posts FOR SELECT USING (TRUE);
+CREATE POLICY "Enable read access for all users" ON comments FOR SELECT USING (TRUE);
+CREATE POLICY "Enable insert for all users" ON posts FOR INSERT WITH CHECK (TRUE);
+CREATE POLICY "Enable insert for all users" ON comments FOR INSERT WITH CHECK (TRUE);
+CREATE POLICY "Enable update for all users" ON posts FOR UPDATE USING (TRUE);
+CREATE POLICY "Enable delete for all users" ON posts FOR DELETE USING (TRUE);
+```
+
+### 4. 개발 서버 실행
 
 ```bash
 npm run dev
@@ -98,7 +150,7 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
 
-### 3. 프로덕션 빌드
+### 5. 프로덕션 빌드
 
 ```bash
 npm run build

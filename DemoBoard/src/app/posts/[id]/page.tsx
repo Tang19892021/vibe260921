@@ -1,57 +1,120 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { Sidebar } from '@/components/Sidebar'
 import { formatDate } from '@/lib/utils'
 import { Heart, MessageCircle, Share2, Eye } from 'lucide-react'
 import Link from 'next/link'
+import type { Post } from '@/lib/types'
 
-// Mock 데이터
-const post = {
-  id: '1',
-  title: 'Next.js 14 소개: App Router와 새로운 기능들',
-  content: `Next.js 14에서는 App Router가 더욱 안정화되었고, 서버 컴포넌트가 기본이 되었습니다.
-
-## 주요 변경 사항
-
-### 1. App Router의 안정화
-App Router는 이제 완전히 안정화되어 프로덕션 환경에서 안전하게 사용할 수 있습니다.
-
-### 2. 서버 컴포넌트의 기본화
-모든 컴포넌트가 기본적으로 서버 컴포넌트가 되어 성능을 크게 향상시킬 수 있습니다.
-
-### 3. Streaming과 Suspense
-더 나은 UX를 위해 Streaming과 Suspense를 활용할 수 있습니다.
-
-이러한 변경 사항들은 Next.js를 더욱 강력하고 효율적인 프레임워크로 만들어줍니다.`,
-  author: '김개발',
-  createdAt: new Date('2024-09-20'),
-  updatedAt: new Date('2024-09-20'),
-  views: 123,
-  category: '기술',
-  tags: ['Next.js', 'React', 'Web'],
+interface Comment {
+  id: string
+  post_id: string
+  author: string
+  content: string
+  created_at: string
 }
 
-const comments = [
-  {
-    id: '1',
-    author: '박개발',
-    content: '정말 좋은 글입니다! 많이 배워갑니다.',
-    createdAt: new Date('2024-09-20T10:30:00'),
-    avatar: '👨‍💻',
-  },
-  {
-    id: '2',
-    author: '이디자인',
-    content: 'App Router를 사용해보니 정말 편하네요.',
-    createdAt: new Date('2024-09-20T11:00:00'),
-    avatar: '👩‍💻',
-  },
-]
+export default function PostDetailPage({ params }: { params: { id: string } }) {
+  const [post, setPost] = useState<Post | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [commentAuthor, setCommentAuthor] = useState('')
+  const [commentContent, setCommentContent] = useState('')
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
-export default function PostDetailPage() {
+  useEffect(() => {
+    fetchPost()
+    fetchComments()
+  }, [params.id])
+
+  const fetchPost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${params.id}`)
+      const data = await response.json()
+
+      setPost({
+        id: data.id,
+        title: data.title,
+        content: data.content,
+        author: data.author,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        views: data.views || 0,
+        category: data.category,
+        tags: data.tags || [],
+      })
+    } catch (error) {
+      console.error('Failed to fetch post:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/comments?postId=${params.id}`)
+      const data = await response.json()
+      setComments(data)
+    } catch (error) {
+      console.error('Failed to fetch comments:', error)
+    }
+  }
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!commentAuthor.trim() || !commentContent.trim()) {
+      alert('이름과 댓글 내용을 입력해주세요.')
+      return
+    }
+
+    setIsSubmittingComment(true)
+
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          postId: params.id,
+          author: commentAuthor,
+          content: commentContent,
+        }),
+      })
+
+      if (response.ok) {
+        setCommentAuthor('')
+        setCommentContent('')
+        fetchComments()
+      }
+    } catch (error) {
+      console.error('Failed to submit comment:', error)
+    } finally {
+      setIsSubmittingComment(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <p className="text-gray-500">로딩 중...</p>
+      </div>
+    )
+  }
+
+  if (!post) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <p className="text-gray-500">게시물을 찾을 수 없습니다.</p>
+      </div>
+    )
+  }
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Main Content */}
@@ -79,7 +142,7 @@ export default function PostDetailPage() {
                 <div className="flex items-center gap-4">
                   <span>{post.author}</span>
                   <span>·</span>
-                  <span>{formatDate(post.createdAt)}</span>
+                  <span>{formatDate(new Date(post.createdAt))}</span>
                 </div>
               </div>
             </div>
@@ -100,7 +163,7 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-4 text-gray-600">
             <button className="flex items-center gap-2 hover:text-red-500 transition-colors">
               <Heart className="w-5 h-5" />
-              <span className="text-sm">123</span>
+              <span className="text-sm">0</span>
             </button>
             <button className="flex items-center gap-2 hover:text-blue-500 transition-colors">
               <MessageCircle className="w-5 h-5" />
@@ -122,14 +185,25 @@ export default function PostDetailPage() {
 
           <Card>
             <CardContent className="p-6">
-              <textarea
-                placeholder="댓글을 작성해주세요..."
-                className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                rows={4}
-              />
-              <div className="mt-3 flex justify-end">
-                <Button>댓글 작성</Button>
-              </div>
+              <form onSubmit={handleSubmitComment} className="space-y-4">
+                <Input
+                  placeholder="이름"
+                  value={commentAuthor}
+                  onChange={(e) => setCommentAuthor(e.target.value)}
+                />
+                <textarea
+                  placeholder="댓글을 작성해주세요..."
+                  className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  rows={4}
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                />
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isSubmittingComment}>
+                    {isSubmittingComment ? '작성 중...' : '댓글 작성'}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
 
@@ -138,13 +212,13 @@ export default function PostDetailPage() {
               <Card key={comment.id}>
                 <CardContent className="p-6">
                   <div className="flex gap-4">
-                    <div className="text-2xl">{comment.avatar}</div>
+                    <div className="text-2xl">👤</div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-semibold text-gray-900">{comment.author}</span>
-                        <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                        <span className="text-xs text-gray-500">{formatDate(new Date(comment.created_at))}</span>
                       </div>
-                      <p className="text-gray-700">{comment.content}</p>
+                      <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
                       <div className="mt-3 flex gap-3 text-sm text-gray-500">
                         <button className="hover:text-blue-500">좋아요</button>
                         <button className="hover:text-blue-500">답글</button>
